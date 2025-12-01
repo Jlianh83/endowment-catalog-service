@@ -64,10 +64,17 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
+var uploadPath = "/opt/render/project/src/uploads";
+
+if (!Directory.Exists(uploadPath))
+{
+    Directory.CreateDirectory(uploadPath);
+}
+
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(Path.Combine(builder.Environment.ContentRootPath, "uploads")),
-    RequestPath = "/Resources"
+    FileProvider = new PhysicalFileProvider(uploadPath),
+    RequestPath = "/uploads"
 
 });
 
