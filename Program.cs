@@ -64,7 +64,7 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-var uploadPath = "/opt/render/project/src/uploads";
+var uploadPath = Path.Combine(builder.Environment.WebRootPath, "uploads");
 
 if (!Directory.Exists(uploadPath))
 {
