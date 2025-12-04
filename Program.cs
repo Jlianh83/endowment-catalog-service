@@ -10,6 +10,7 @@ using Microsoft.Extensions.FileProviders;
 using CatalogWebApi.Mapper.MapperImplement;
 using CatalogWebApi.Models;
 using QuestPDF.Infrastructure;
+using Azure.Storage.Blobs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +28,11 @@ builder.Services.Configure<SmtpSettings>(
 );
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddSingleton(x =>
+{
+    return new BlobServiceClient(builder.Configuration.GetConnectionString("AzureBlobStorage"));
+});
 
 builder.Services.AddScoped<IEndowmentRepository, EndowmentRepository>();
 builder.Services.AddScoped<IEndowmentService, EndowmentService>();
@@ -64,6 +70,7 @@ builder.Services.AddCors(options =>
         .AllowAnyHeader();
     });
 });
+
 
 builder.Services.AddControllers();
 

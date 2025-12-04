@@ -1,4 +1,5 @@
-﻿using CatalogWebApi.Data;
+﻿using Azure.Storage.Blobs;
+using CatalogWebApi.Data;
 using CatalogWebApi.Models;
 using CatalogWebApi.Repository;
 using Microsoft.AspNetCore.Hosting;
@@ -7,12 +8,12 @@ namespace CatalogWebApi.Service.ServiceImplement
 {
     public class ImagesService : IImagesService
     {
-        private readonly IWebHostEnvironment _environment;
+        private readonly BlobServiceClient _blobServiceClient;
         private readonly IImagesRepository _imagesRepository;
 
-        public ImagesService(IWebHostEnvironment webHostEnvironment, IImagesRepository imagesRepository)
+        public ImagesService(BlobServiceClient blobStorageService, IImagesRepository imagesRepository)
         {
-            _environment = webHostEnvironment;
+            _blobServiceClient = blobStorageService;
             _imagesRepository = imagesRepository;
            
         }
@@ -26,13 +27,8 @@ namespace CatalogWebApi.Service.ServiceImplement
                 throw new ArgumentNullException(nameof(images));
             }
 
-            var contentPath = _environment.ContentRootPath;
-            var path = Path.Combine(contentPath, "uploads");
-
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
+            var container = _blobServiceClient.GetBlobContainerClient("uploads");
+            await container.CreateIfNotExistsAsync();
 
             foreach (var i in images)
             {
@@ -43,14 +39,14 @@ namespace CatalogWebApi.Service.ServiceImplement
                 }
 
                 var fileName = $"{Guid.NewGuid().ToString()}{ext}";
-                var fileNameWithPath = Path.Combine(path, fileName);
-                using var stream = new FileStream(fileNameWithPath, FileMode.Create);
-                await i.CopyToAsync(stream);
+                var blob = container.GetBlobClient(fileName);
+                using var stream = File.OpenWrite(fileName);
+                await blob.UploadAsync(stream);
 
                 var image = new Image
                 {
                     Name = fileName,
-                    Url = fileNameWithPath
+                    Url = blob.Uri.ToString(),
                 };
 
                 await _imagesRepository.SaveFilesAsync(image);
