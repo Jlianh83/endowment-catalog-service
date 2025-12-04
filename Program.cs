@@ -56,7 +56,7 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("https://seguridad-industrial-y-suministros-sas.azurewebsites.net", "http://localhost:4200").AllowAnyMethod().AllowAnyHeader();
+        policy.AllowAnyMethod().AllowAnyHeader().WithOrigins("https://localhost:4200", "https://seguridad-industrial-y-suministros-sas.azurewebsites.net/");
     });
 });
 
@@ -88,7 +88,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowFrontend");
+app.UseCors();
 
 app.UseHttpsRedirection();
 
