@@ -1,4 +1,6 @@
-﻿using CatalogWebApi.Data;
+﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Specialized;
+using CatalogWebApi.Data;
 using CatalogWebApi.DTO;
 using Microsoft.EntityFrameworkCore;
 using QuestPDF.Fluent;
@@ -10,6 +12,7 @@ namespace CatalogWebApi.Infrastructure.Pdf
     public class QuotationPdf : IDocument
     {
         public QuotationPdfDTO _quotation { get; }
+        private readonly BlobServiceClient _blobServiceClient;
 
         public QuotationPdf(QuotationPdfDTO quotation)
         {
@@ -53,7 +56,7 @@ namespace CatalogWebApi.Infrastructure.Pdf
                     col.Item().PaddingVertical(10).LineHorizontal(1);
 
                     // Tabla
-                    col.Item().Table(table =>
+                    col.Item().Table(async table =>
                     {
                         table.ColumnsDefinition(columns =>
                         {
@@ -80,7 +83,9 @@ namespace CatalogWebApi.Infrastructure.Pdf
                         foreach (var item in _quotation.Items)
                         {
 
-                            table.Cell().Image(GetImage(item.ImageName)).FitArea();
+                            var img = await GetImageAsync(item.ImageName);
+
+                            table.Cell().Image(img).FitArea();
                             table.Cell().Text(item.EndowmentName);
                             table.Cell().Text(item.SizeName);
                             table.Cell().Text(item.ColorName);
@@ -90,23 +95,31 @@ namespace CatalogWebApi.Infrastructure.Pdf
                 });
             });
         }
-        private byte[] GetImage(string name)
+        private async Task<byte[]> GetImageAsync(string name)
         {
-            var basePath = @"C:\Users\hedi2\source\repos\CatalogWebApi\uploads";
-            var path = Path.Combine(basePath, name);
+            var container = _blobServiceClient.GetBlobContainerClient("uploads");
 
-            if (!File.Exists(path))
+            var blob = container.GetBlobClient(name);
+
+            if (!await blob.ExistsAsync())
             {
                 // Imagen por defecto para evitar romper el PDF
-                var fallback = Path.Combine(basePath, "no-image.png");
+                var fallbackBlob = container.GetBlobClient("no-image.png");
 
-                if (File.Exists(fallback))
-                    return File.ReadAllBytes(fallback);
+                if (await fallbackBlob.ExistsAsync())
+                {
+                    var fallbackStream = new MemoryStream();
+                    await fallbackBlob.DownloadToAsync(fallbackStream);
+                    return fallbackStream.ToArray();
+                }
+                    
 
                 return Array.Empty<byte>();
             }
 
-            return File.ReadAllBytes(path);
+            using var stream = new MemoryStream();
+            await blob.DownloadToAsync(stream);
+            return stream.ToArray();
         }
 
         public async Task<List<QuotationItemPdfDTO>> buildItemList(QuotationDTO quotationDTO)

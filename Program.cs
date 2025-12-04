@@ -29,10 +29,7 @@ builder.Services.Configure<SmtpSettings>(
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddSingleton(x =>
-{
-    return new BlobServiceClient(builder.Configuration.GetConnectionString("AzureBlobStorage"));
-});
+builder.Services.AddSingleton(x => new BlobServiceClient(builder.Configuration.GetConnectionString("AzureBlobStorage")));
 
 builder.Services.AddScoped<IEndowmentRepository, EndowmentRepository>();
 builder.Services.AddScoped<IEndowmentService, EndowmentService>();
@@ -58,21 +55,18 @@ builder.Services.AddScoped<IQuotationsService, QuotationService>();
 builder.Services.AddScoped<IQuotationMapper, QuotationMapper>();
 builder.Services.AddScoped<IPdfService, PdfService>();
 
-var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+builder.Services.AddControllers();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: MyAllowSpecificOrigins,
+    options.AddPolicy("AllowAllPolicy",
         policy =>
-    {
-        policy.WithOrigins("https://localhost:4200", "https://seguridad-industrial-y-suministros-sas.azurewebsites.net")
-        .AllowAnyMethod()
-        .AllowAnyHeader();
-    });
+        {
+            policy.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+        });
 });
-
-
-builder.Services.AddControllers();
 
 var app = builder.Build();
 
@@ -100,7 +94,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors(MyAllowSpecificOrigins);
+app.UseCors("AllowAllPolicy");
 
 app.UseHttpsRedirection();
 
