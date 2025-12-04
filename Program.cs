@@ -52,11 +52,16 @@ builder.Services.AddScoped<IQuotationsService, QuotationService>();
 builder.Services.AddScoped<IQuotationMapper, QuotationMapper>();
 builder.Services.AddScoped<IPdfService, PdfService>();
 
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+        policy =>
     {
-        policy.AllowAnyMethod().AllowAnyHeader().WithOrigins("https://localhost:4200", "https://seguridad-industrial-y-suministros-sas.azurewebsites.net/");
+        policy.WithOrigins("https://localhost:4200", "https://seguridad-industrial-y-suministros-sas.azurewebsites.net")
+        .AllowAnyMethod()
+        .AllowAnyHeader();
     });
 });
 
@@ -88,7 +93,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors();
+app.UseCors(MyAllowSpecificOrigins);
 
 app.UseHttpsRedirection();
 
