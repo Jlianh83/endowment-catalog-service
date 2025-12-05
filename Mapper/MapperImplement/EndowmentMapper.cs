@@ -15,6 +15,7 @@ namespace CatalogWebApi.Utils.MapperImplement
                 Name = dto.name,
                 Description = dto.description,
                 EndowmentTypeId = dto.typeId,
+                EndowmentCategoryId = dto.categoryId,
                 Images = dto.images.Select(id => new Image { Id = id }).ToList()
                 
             };
@@ -28,6 +29,7 @@ namespace CatalogWebApi.Utils.MapperImplement
                 Name = endowmentDTO.name,
                 Description = endowmentDTO.description,
                 EndowmentTypeId = endowmentDTO.type,
+                EndowmentCategoryId = endowmentDTO.category,
                 Images = endowmentDTO.images.Select(id => new Image { Id = id.id }).ToList()
             };
         }
@@ -40,6 +42,7 @@ namespace CatalogWebApi.Utils.MapperImplement
                 name = endowment.Name,
                 description = endowment.Description,
                 type = endowment.EndowmentTypeId,
+                category = endowment.EndowmentCategoryId,
                 images = endowment.Images.Select(i => new ImagesDTO
                 {
                     id = i.Id,

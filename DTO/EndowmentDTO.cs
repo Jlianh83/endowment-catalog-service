@@ -9,6 +9,7 @@ namespace CatalogWebApi.DTO
         public string name { get; set; }
         public string description { get; set; }
         public int type { get; set; }
+        public int category { get; set; }
         public List<ImagesDTO> images { get; set; } = new();
 
     }

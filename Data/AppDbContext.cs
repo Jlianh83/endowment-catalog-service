@@ -34,7 +34,8 @@ public partial class AppDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=aws-0-us-west-2.pooler.supabase.com;Port=6543;Database=postgres;Username=postgres.faovmwzwrmqedyiisecx;Password=87H2opQyhBAItYr1;SSL Mode=Require;Trust Server Certificate=true");
+        => optionsBuilder.UseNpgsql("User Id=postgres.faovmwzwrmqedyiisecx;Password=87H2opQyhBAItYr1;Server=aws-0-us-west-2.pooler.supabase.com;Port=6543;Database=postgres");
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

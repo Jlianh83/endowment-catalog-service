@@ -1,7 +1,9 @@
-﻿namespace CatalogWebApi.Service
+﻿using CatalogWebApi.Models;
+
+namespace CatalogWebApi.Service
 {
     public interface IImagesService
     {
-        Task<List<int>> createImages(List<IFormFile> images, string[] formats);
+        Task<List<Image>> createImages(List<IFormFile> images, string[] formats);
     }
 }

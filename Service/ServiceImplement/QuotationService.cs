@@ -3,7 +3,6 @@ using CatalogWebApi.Mapper;
 using CatalogWebApi.Models;
 using CatalogWebApi.Repository;
 
-
 namespace CatalogWebApi.Service.ServiceImplement
 {
     public class QuotationService : IQuotationsService

@@ -67,20 +67,18 @@ namespace CatalogWebApi.Service.ServiceImplement
         public async Task<EndowmentDTO> CreateEndowmentAsync (SaveEndowmentDTO saveEndowmentDTO)
         {
 
+            var uploadedImages = new List<Image>();
+
             if (saveEndowmentDTO.UploadedImages != null && saveEndowmentDTO.UploadedImages.Any()) 
             {
                 var allowedFormats = new[] { ".jpg", ".jpeg", ".png" };
-                var uploadedImagesIds = await _imagesService.createImages(saveEndowmentDTO.UploadedImages, allowedFormats);
-
-                saveEndowmentDTO.images.AddRange(uploadedImagesIds);
+                uploadedImages = await _imagesService.createImages(saveEndowmentDTO.UploadedImages, allowedFormats);
 
             }
 
             var endowment = _endowmentMapper.SaveDtoToEntity(saveEndowmentDTO);
 
-            endowment.Images = await _appDbContext.Images
-               .Where(b => saveEndowmentDTO.images.Contains(b.Id))
-               .ToListAsync();
+            endowment.Images = uploadedImages;
 
             await _endowmentRepository.AddAsync(endowment);
 
@@ -91,25 +89,25 @@ namespace CatalogWebApi.Service.ServiceImplement
         {
             var endowment = await _endowmentRepository.GetByIdAsync(id);
 
+            var uploadedImages = new List<Image>();
+
             if (endowment == null)
                 throw new KeyNotFoundException("Endowment not found");
 
             if (saveEndowmentDTO.UploadedImages != null && saveEndowmentDTO.UploadedImages.Any())
             {
                 var allowedFormats = new[] { ".jpg", ".jpeg", ".png" };
-                var uploadedImagesIds = await _imagesService.createImages(saveEndowmentDTO.UploadedImages, allowedFormats);
-
-                saveEndowmentDTO.images.AddRange(uploadedImagesIds);
+                uploadedImages = await _imagesService.createImages(saveEndowmentDTO.UploadedImages, allowedFormats);
 
             }
 
-            endowment.Images = await _appDbContext.Images
-              .Where(b => saveEndowmentDTO.images.Contains(b.Id))
-              .ToListAsync();
+            var modifiedEndowment = _endowmentMapper.SaveDtoToEntity(saveEndowmentDTO);
 
-            await _endowmentRepository.UpdateAsync(endowment);
+            modifiedEndowment.Images = uploadedImages;
 
-            return _endowmentMapper.EntitytoDto(endowment);
+            await _endowmentRepository.AddAsync(modifiedEndowment);
+
+            return _endowmentMapper.EntitytoDto(modifiedEndowment);
 
         }
 

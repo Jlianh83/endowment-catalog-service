@@ -24,8 +24,8 @@ namespace CatalogWebApi.Mapper.MapperImplement
             return new QuotationItem
             {
                 Id = quotationItemsDTO.id,
-                EndowmentId = quotationItemsDTO.endowmentId,
                 QuotationId = quotationId,
+                EndowmentId = quotationItemsDTO.endowmentId,
                 ColorId = quotationItemsDTO.colorId,
                 SizeId = quotationItemsDTO.sizeId,
                 Quantity = quotationItemsDTO.quantity,

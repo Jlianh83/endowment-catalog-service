@@ -1,6 +1,9 @@
 ﻿using CatalogWebApi.Data;
 using CatalogWebApi.Models;
+using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Index.HPRtree;
+
 
 namespace CatalogWebApi.Repository.RepositoryImplement
 {
@@ -30,8 +33,17 @@ namespace CatalogWebApi.Repository.RepositoryImplement
 
         public async Task<List<QuotationItem>> AddQuotationItemsAsync(List<QuotationItem> quotationItems)
         {
-            _appDbContext.QuotationItems.AddRange(quotationItems);
-            await _appDbContext.SaveChangesAsync();
+
+            const int batchSize = 100;
+
+            for (int i = 0; i < quotationItems.Count; i += batchSize)
+            {
+                var batch = quotationItems.Skip(i).Take(batchSize).ToList();
+
+                await _appDbContext.QuotationItems.AddRangeAsync(batch);
+                await _appDbContext.SaveChangesAsync();
+            }
+
             return quotationItems;
         }
 

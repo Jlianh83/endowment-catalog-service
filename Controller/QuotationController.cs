@@ -1,6 +1,5 @@
 ﻿using CatalogWebApi.DTO;
 using CatalogWebApi.Service;
-using CatalogWebApi.Service.ServiceImplement;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CatalogWebApi.Controller

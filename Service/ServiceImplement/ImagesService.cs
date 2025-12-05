@@ -9,49 +9,40 @@ namespace CatalogWebApi.Service.ServiceImplement
     public class ImagesService : IImagesService
     {
         private readonly BlobServiceClient _blobServiceClient;
-        private readonly IImagesRepository _imagesRepository;
 
-        public ImagesService(BlobServiceClient blobStorageService, IImagesRepository imagesRepository)
+        public ImagesService(BlobServiceClient blobStorageService)
         {
             _blobServiceClient = blobStorageService;
-            _imagesRepository = imagesRepository;
            
         }
 
-        public async Task<List<int>> createImages(List<IFormFile> images, string[] formats)
+        public async Task<List<Image>> createImages(List<IFormFile> images, string[] formats)
         {
-            var imagesList = new List<int>();
-
-            if (images.Count() <= 0)
-            {
-                throw new ArgumentNullException(nameof(images));
-            }
-
-            var container = _blobServiceClient.GetBlobContainerClient("uploads");
-            await container.CreateIfNotExistsAsync();
+            var imagesList = new List<Image>();
 
             foreach (var i in images)
             {
-                var ext = Path.GetExtension(i.FileName);
+                var ext = Path.GetExtension(i.FileName).ToLower();
                 if (!formats.Contains(ext))
                 {
                     throw new ArgumentException("One of your images has a invalid extention");
                 }
 
                 var fileName = $"{Guid.NewGuid().ToString()}{ext}";
+
+                var container = _blobServiceClient.GetBlobContainerClient("uploads");
+                await container.CreateIfNotExistsAsync();
+
                 var blob = container.GetBlobClient(fileName);
-                using var stream = File.OpenWrite(fileName);
-                await blob.UploadAsync(stream);
+                using var stream = i.OpenReadStream();
+                await blob.UploadAsync(stream, overwrite: true);
 
-                var image = new Image
+                imagesList.Add(new Image
                 {
-                    Name = fileName,
+                    Name = i.Name,
                     Url = blob.Uri.ToString(),
-                };
 
-                await _imagesRepository.SaveFilesAsync(image);
-
-                imagesList.Add(image.Id);    
+                });
             }
 
             return imagesList;

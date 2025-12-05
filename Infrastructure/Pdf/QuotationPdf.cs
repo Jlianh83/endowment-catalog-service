@@ -12,8 +12,7 @@ namespace CatalogWebApi.Infrastructure.Pdf
     public class QuotationPdf : IDocument
     {
         public QuotationPdfDTO _quotation { get; }
-        private readonly BlobServiceClient _blobServiceClient;
-
+        
         public QuotationPdf(QuotationPdfDTO quotation)
         {
             _quotation = quotation;
@@ -82,70 +81,17 @@ namespace CatalogWebApi.Infrastructure.Pdf
                         // Items
                         foreach (var item in _quotation.Items)
                         {
-
-                            var img = await GetImageAsync(item.ImageName);
-
-                            table.Cell().Image(img).FitArea();
+                            table.Cell().Image(item.Images).FitArea();
                             table.Cell().Text(item.EndowmentName);
                             table.Cell().Text(item.SizeName);
                             table.Cell().Text(item.ColorName);
                             table.Cell().Text(item.Quantity.ToString());
+                            // Separador entre items
+                            col.Item().PaddingVertical(5).LineHorizontal(0.5f);
                         }
                     });
                 });
             });
-        }
-        private async Task<byte[]> GetImageAsync(string name)
-        {
-            var container = _blobServiceClient.GetBlobContainerClient("uploads");
-
-            var blob = container.GetBlobClient(name);
-
-            if (!await blob.ExistsAsync())
-            {
-                // Imagen por defecto para evitar romper el PDF
-                var fallbackBlob = container.GetBlobClient("no-image.png");
-
-                if (await fallbackBlob.ExistsAsync())
-                {
-                    var fallbackStream = new MemoryStream();
-                    await fallbackBlob.DownloadToAsync(fallbackStream);
-                    return fallbackStream.ToArray();
-                }
-                    
-
-                return Array.Empty<byte>();
-            }
-
-            using var stream = new MemoryStream();
-            await blob.DownloadToAsync(stream);
-            return stream.ToArray();
-        }
-
-        public async Task<List<QuotationItemPdfDTO>> buildItemList(QuotationDTO quotationDTO)
-        {
-            var items = new List<QuotationItemPdfDTO>();
-
-            var context = new AppDbContext();
-
-            // Items
-            foreach (var item in quotationDTO.quotationItems)
-            {
-                var endowment = await context.Endowments.FindAsync(item.endowmentId);
-                var size = await context.Sizes.FindAsync(item.sizeId);
-                var color = await context.Colors.FindAsync(item.colorId);
-
-                items.Add(new QuotationItemPdfDTO
-                {
-                    EndowmentName = endowment.Name,
-                    SizeName = size.Name,
-                    ColorName = color.Name,
-                    ImageName = item.imageName,
-                    Quantity = item.quantity
-                });
-            }
-
-            return items;
         }
     }
 }
