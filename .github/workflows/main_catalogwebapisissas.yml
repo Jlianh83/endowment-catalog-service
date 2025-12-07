@@ -46,7 +46,7 @@ jobs:
           name: .net-app
 
       - name: Set App Settings in Azure
-        uses: Azure/app-service-settings@v1
+        uses: azure/appservice-settings@v1.0.0
         with:
           app-name: CatalogWebApiSISSAS
           app-settings-json: |
