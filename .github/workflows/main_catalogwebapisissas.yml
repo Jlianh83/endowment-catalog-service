@@ -48,12 +48,12 @@ jobs:
       - name: Set App Settings in Azure
         uses: azure/appservice-settings@v1
         with:
-          app-name: endowment-catalog-webapi
+          app-name: CatalogWebApiSISSAS
           app-settings-json: |
             {
-              ConnectionStrings__DefaultConnection= "${{ secrets.DEFAULT_CONNECTION }}"\,
-              ConnectionStrings__AzureBlobStorage= "${{ secrets.AZURE_BLOB_STORAGE }}"\,
-              ConnectionStrings__AzureCommunication= "${{ secrets.AZURE_COMMUNICATION }}"
+              "ConnectionStrings:DefaultConnection": "${{ secrets.DEFAULT_CONNECTION }}",
+              "ConnectionStrings:AzureBlobStorage": "${{ secrets.AZURE_BLOB_STORAGE }}",
+              "ConnectionStrings:AzureCommunication": "${{ secrets.AZURE_COMMUNICATION }}"
             }
       
       - name: Deploy to Azure Web App
