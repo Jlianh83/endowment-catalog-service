@@ -35,12 +35,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddSingleton(x => new BlobServiceClient(builder.Configuration.GetConnectionString("AzureBlobStorage")));
 
+builder.Services.AddSingleton(c => new EmailClient(builder.Configuration.GetConnectionString("AzureCommunication")));
 
-var connectionString = builder.Configuration.GetConnectionString("AzureCommunication");
-if (!string.IsNullOrEmpty(connectionString))
-{
-    builder.Services.AddSingleton(new EmailClient(connectionString));
-}
 
 builder.Services.AddScoped<IEndowmentRepository, EndowmentRepository>();
 builder.Services.AddScoped<IEndowmentService, EndowmentService>();
