@@ -50,14 +50,17 @@ jobs:
         with:
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1E76DEAFB0674254A0F11A632E8DBD91 }}
 
-      - name: Set App Settings in Azure via CLI
-        run: |
-          az webapp config appsettings set \
-            --name CatalogWebApiSISSAS \
-            --resource-group CatalogWebApi2 \
-            --settings ConnectionStrings__DefaultConnection="${{ secrets.DEFAULT_CONNECTION }}" \
-                       ConnectionStrings__AzureBlobStorage="${{ secrets.AZURE_BLOB_STORAGE }}" \
-                       ConnectionStrings__AzureCommunication="${{ secrets.AZURE_COMMUNICATION }}"
+      - name: Set App Settings
+        uses: azure/appservice-settings@v1
+        with:
+          app-name: CatalogWebApiSISSAS
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1E76DEAFB0674254A0F11A632E8DBD91 }}
+          app-settings-json: |
+            [
+              { "name": "ConnectionStrings__DefaultConnection", "value": "${{ secrets.DEFAULT_CONNECTION }}" },
+              { "name": "ConnectionStrings__AzureBlobStorage", "value": "${{ secrets.AZURE_BLOB_STORAGE }}" },
+              { "name": "ConnectionStrings__AzureCommunication", "value": "${{ secrets.AZURE_COMMUNICATION }}" }
+            ]
       
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
