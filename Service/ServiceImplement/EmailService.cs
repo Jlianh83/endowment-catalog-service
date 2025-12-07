@@ -1,7 +1,6 @@
-﻿using Azure;
-using Azure.Communication.Email;
-using CatalogWebApi.DTO;
+﻿using CatalogWebApi.DTO;
 using CatalogWebApi.Models;
+using Azure.Communication.Email;
 
 
 
@@ -12,9 +11,9 @@ namespace CatalogWebApi.Service.ServiceImplement
         private readonly EmailClient _emailClient; 
         private readonly IEmailTemplateBuilder _emailTemplateBuilder;
 
-        public EmailService(IEmailTemplateBuilder emailTemplateBuilder, IConfiguration configuration)
+        public EmailService(IEmailTemplateBuilder emailTemplateBuilder, EmailClient emailClient)
         {
-            _emailClient = new EmailClient(configuration["ConnectionStrings:AzureCommunication"]);
+            _emailClient = emailClient;
             _emailTemplateBuilder = emailTemplateBuilder;
         }
 
@@ -44,30 +43,12 @@ namespace CatalogWebApi.Service.ServiceImplement
 
                 await _emailClient.SendAsync(Azure.WaitUntil.Completed, emailMessage); 
                
-            }
-            catch (RequestFailedException rex)
+            } 
+            catch (Exception ex) 
             {
-                // Errores específicos de Azure Communication Services
-                Console.WriteLine("Error al enviar email (Azure Communication):");
-                Console.WriteLine($"  Status: {rex.Status}");
-                Console.WriteLine($"  ErrorCode: {rex.ErrorCode}");
-                Console.WriteLine($"  Message: {rex.Message}");
-                Console.WriteLine($"  StackTrace: {rex.StackTrace}");
-
-                // Opcional: puedes lanzar de nuevo si quieres que suba a un middleware
-                throw;
+                Console.WriteLine($"Error:{ex.Message}");
             }
-            catch (Exception ex)
-            {
-                // Errores generales
-                Console.WriteLine("Error general al enviar email:");
-                Console.WriteLine($"  Message: {ex.Message}");
-                Console.WriteLine($"  InnerException: {ex.InnerException?.Message}");
-                Console.WriteLine($"  StackTrace: {ex.StackTrace}");
-
-                throw;
-            }
-
+            
 
         }
     }

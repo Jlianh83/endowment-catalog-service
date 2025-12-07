@@ -1,16 +1,17 @@
-using Microsoft.EntityFrameworkCore;
+using Azure.Communication.Email;
+using Azure.Storage.Blobs;
 using CatalogWebApi.Data;
+using CatalogWebApi.Mapper;
+using CatalogWebApi.Mapper.MapperImplement;
+using CatalogWebApi.Models;
 using CatalogWebApi.Repository;
 using CatalogWebApi.Repository.RepositoryImplement;
 using CatalogWebApi.Service;
 using CatalogWebApi.Service.ServiceImplement;
-using CatalogWebApi.Mapper;
 using CatalogWebApi.Utils.MapperImplement;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
-using CatalogWebApi.Mapper.MapperImplement;
-using CatalogWebApi.Models;
 using QuestPDF.Infrastructure;
-using Azure.Storage.Blobs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +34,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 
 builder.Services.AddSingleton(x => new BlobServiceClient(builder.Configuration.GetConnectionString("AzureBlobStorage")));
+
+var connectionString = builder.Configuration.GetConnectionString("AzureCommunication");
+if (!string.IsNullOrEmpty(connectionString))
+{
+    builder.Services.AddSingleton(new EmailClient(connectionString));
+}
 
 builder.Services.AddScoped<IEndowmentRepository, EndowmentRepository>();
 builder.Services.AddScoped<IEndowmentService, EndowmentService>();
