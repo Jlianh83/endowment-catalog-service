@@ -50,11 +50,11 @@ jobs:
         with:
           app-name: CatalogWebApiSISSAS
           app-settings-json: |
-            {
-              "ConnectionStrings__DefaultConnection": "${{ secrets.DEFAULT_CONNECTION }}",
-              "ConnectionStrings__AzureBlobStorage": "${{ secrets.AZURE_BLOB_STORAGE }}",
-              "ConnectionStrings__AzureCommunication": "${{ secrets.AZURE_COMMUNICATION }}"
-            }
+             {
+               "ConnectionStrings__DefaultConnection": ${{ secrets.DEFAULT_CONNECTION }},
+               "ConnectionStrings__AzureBlobStorage": ${{ secrets.AZURE_BLOB_STORAGE }},
+               "ConnectionStrings__AzureCommunication": ${{ secrets.AZURE_COMMUNICATION }}
+             }
       
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
