@@ -35,6 +35,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddSingleton(x => new BlobServiceClient(builder.Configuration.GetConnectionString("AzureBlobStorage")));
 
+
 var connectionString = builder.Configuration.GetConnectionString("AzureCommunication");
 if (!string.IsNullOrEmpty(connectionString))
 {
