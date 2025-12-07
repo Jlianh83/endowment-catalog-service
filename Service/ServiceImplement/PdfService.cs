@@ -33,8 +33,6 @@ namespace CatalogWebApi.Service.ServiceImplement
                     imgBytes = await GetBlobBytesAsync(item.imageName);
                 }
 
-                Console.WriteLine($"Item: {item.endowmentId} {item.sizeId} {item.colorId} {item.quantity}");
-
                 items.Add(new QuotationItemPdfDTO
                 {
                     EndowmentName = endowment.Name,
@@ -45,13 +43,16 @@ namespace CatalogWebApi.Service.ServiceImplement
                 });
             }
 
+            byte[] companyLogoBytes = await GetBlobBytesAsync("logo.png");
+
             var pdfModel = new QuotationPdfDTO
             {
                 clientName = quotationDTO.clientName,
                 clientCompany = quotationDTO.clientCompany,
                 clientEmail = quotationDTO.clientEmail,
                 clientPhone = quotationDTO.clientPhone,
-                createdAt = quotationDTO.createdAt,
+                createdAt = DateOnly.FromDateTime(DateTime.Now),
+                companyInfo = companyLogoBytes,
                 Items = items
             };
 

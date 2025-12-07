@@ -7,6 +7,7 @@
         public string clientEmail { get; set; }
         public string clientPhone { get; set; }
         public DateOnly createdAt { get; set; }
+        public byte[] companyInfo { get; set; }
 
         public List<QuotationItemPdfDTO> Items { get; set; }
     }

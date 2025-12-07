@@ -35,62 +35,100 @@ namespace CatalogWebApi.Infrastructure.Pdf
             {
                 page.Margin(30);
 
-                page.Header()
-                .Text("Cotización")
-                .FontSize(24)
-                .SemiBold()
-                .FontColor(Colors.Blue.Medium);
+                page.Header().Row(row =>
+                {
+                    row.RelativeItem().Column(column =>
+                    {
+                        column.Item()
+                            .Text($"Cotizacion")
+                            .FontSize(20).SemiBold().FontColor(Colors.Blue.Medium);
+
+                        column.Item().Text(text =>
+                        {
+                            text.Span("Fecha de cotizacion: ").SemiBold();
+                            text.Span($"{_quotation.createdAt.ToShortDateString()}");
+                        });
+                        column.Item().Text(text =>
+                        {
+                            text.Span("Cliente: ").SemiBold();
+                            text.Span($"{_quotation.clientName}");
+                        });
+                        column.Item().Text(text =>
+                        {
+                            text.Span("Empresa: ").SemiBold();
+                            text.Span($"{_quotation.clientCompany}");
+                        });
+                        column.Item().Text(text =>
+                        {
+                            text.Span("Email: ").SemiBold();
+                            text.Span($"{_quotation.clientEmail}");
+                        });
+                        column.Item().Text(text =>
+                        {
+                            text.Span("Telefono: ").SemiBold();
+                            text.Span($"{_quotation.clientPhone}");
+                        });
+                    });
+
+                    row.RelativeItem().Height(100).Width(240).Image(_quotation.companyInfo);
+                });
+
+
 
                 page.Content().Column(col =>
                 {
                     col.Spacing(15);
 
-                    // Información del cliente
-                    col.Item().Text($"Cliente: {_quotation.clientName}");
-                    col.Item().Text($"Empresa: {_quotation.clientCompany}");
-                    col.Item().Text($"Email: {_quotation.clientEmail}");
-                    col.Item().Text($"Teléfono: {_quotation.clientPhone}");
-                    col.Item().Text($"Fecha: {_quotation.createdAt.ToShortDateString()}");
-
-                    col.Item().PaddingVertical(10).LineHorizontal(1);
-
-                    // Tabla
-                    col.Item().Table(async table =>
+                    col.Item().Table(table =>
                     {
+                        // === COLUMNAS ===
                         table.ColumnsDefinition(columns =>
                         {
-                            columns.ConstantColumn(70);     // Imagen
-                            columns.RelativeColumn();       // Nombre
-                            columns.RelativeColumn();       // Talla
-                            columns.RelativeColumn();       // Color
-                            columns.RelativeColumn();       // Cantidad
+                            columns.ConstantColumn(70); // Imagen
+                            columns.RelativeColumn();   // Nombre
+                            columns.RelativeColumn();   // Talla
+                            columns.RelativeColumn();   // Color
+                            columns.ConstantColumn(60); // Cantidad
                         });
 
-                        // Encabezados
+                        // === HEADER ===
                         table.Header(header =>
                         {
-                            header.Cell().Text("Imagen").SemiBold();
-                            header.Cell().Text("Nombre").SemiBold();
-                            header.Cell().Text("Talla").SemiBold();
-                            header.Cell().Text("Color").SemiBold();
-                            header.Cell().Text("Cantidad").SemiBold();
+                            header.Cell().Element(BlockHeader).Text("Imagen").SemiBold().AlignCenter();
+                            header.Cell().Element(BlockHeader).Text("Nombre").SemiBold().AlignCenter();
+                            header.Cell().Element(BlockHeader).Text("Talla").SemiBold().AlignCenter();
+                            header.Cell().Element(BlockHeader).Text("Color").SemiBold().AlignCenter();
+                            header.Cell().Element(BlockHeader).Text("Cantidad").SemiBold().AlignCenter();
                         });
 
-                        var items = new List<QuotationItemPdfDTO>();
-
-                        // Items
+                        // === FILAS ===
                         foreach (var item in _quotation.Items)
                         {
-                            table.Cell().Image(item.Images).FitArea();
-                            table.Cell().Text(item.EndowmentName);
-                            table.Cell().Text(item.SizeName);
-                            table.Cell().Text(item.ColorName);
-                            table.Cell().Text(item.Quantity.ToString());
-                            // Separador entre items
-                            col.Item().PaddingVertical(5).LineHorizontal(0.5f);
+                            table.Cell().Element(BlockCell).Image(item.Images).FitArea();
+
+                            table.Cell().Element(BlockCell).Text($"{item.EndowmentName}").AlignCenter();
+                            table.Cell().Element(BlockCell).Text($"{item.SizeName}").AlignCenter();
+                            table.Cell().Element(BlockCell).Text($"{item.ColorName}").AlignCenter();
+                            table.Cell().Element(BlockCell).Text(item.Quantity.ToString()).AlignCenter();
                         }
                     });
                 });
+
+
+                // === ESTILOS ===
+
+                IContainer BlockHeader(IContainer container) =>
+                    container
+                        .Padding(5)
+                        .BorderBottom(1)
+                        .BorderColor(Colors.Grey.Lighten2);
+
+                IContainer BlockCell(IContainer container) =>
+                    container
+                        .Padding(10)
+                        .BorderBottom(0.5f)
+                        .BorderColor(Colors.Grey.Lighten3);
+
             });
         }
     }

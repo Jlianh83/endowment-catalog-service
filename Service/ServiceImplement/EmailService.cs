@@ -22,7 +22,7 @@ namespace CatalogWebApi.Service.ServiceImplement
             try
             {
 
-                var from = "DoNotReply@24291be4-f291-46a9-a4a8-c70599016ee0.azurecomm.net";
+                var from = "DoNotReply@b0be9ab9-956a-4e92-a666-0e6c8b94232e.azurecomm.net";
                 var html = await _emailTemplateBuilder.BuildCotizationTemplateAsync(clientName);
 
                 var emailContent = new EmailContent(sendQuotationDTO.Subject)
