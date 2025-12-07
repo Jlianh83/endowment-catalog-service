@@ -46,14 +46,14 @@ jobs:
           name: .net-app
 
       - name: Set App Settings in Azure
-        uses: azure/appservice-settings@v1
+        uses: azure/appservice-settings@v1.0.0
         with:
           app-name: CatalogWebApiSISSAS
           app-settings-json: |
             {
-              "ConnectionStrings:DefaultConnection": "${{ secrets.DEFAULT_CONNECTION }}",
-              "ConnectionStrings:AzureBlobStorage": "${{ secrets.AZURE_BLOB_STORAGE }}",
-              "ConnectionStrings:AzureCommunication": "${{ secrets.AZURE_COMMUNICATION }}"
+              "ConnectionStrings__DefaultConnection": "${{ secrets.DEFAULT_CONNECTION }}",
+              "ConnectionStrings__AzureBlobStorage": "${{ secrets.AZURE_BLOB_STORAGE }}",
+              "ConnectionStrings__AzureCommunication": "${{ secrets.AZURE_COMMUNICATION }}"
             }
       
       - name: Deploy to Azure Web App
