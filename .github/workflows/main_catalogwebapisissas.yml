@@ -49,7 +49,6 @@ jobs:
         uses: Azure/app-service-settings@v1
         with:
           app-name: CatalogWebApiSISSAS
-          slot-name: 'production'
           app-settings-json: |
              {
                "ConnectionStrings__DefaultConnection": ${{ secrets.DEFAULT_CONNECTION }},
