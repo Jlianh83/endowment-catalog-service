@@ -46,7 +46,7 @@ jobs:
           name: .net-app
 
       - name: Set App Settings in Azure
-        uses: azure/appservice-settngs@v1
+        uses: azure/appservice-settings@v1
         with:
           app-name: endowment-catalog-webapi
           app-settings-json: |
