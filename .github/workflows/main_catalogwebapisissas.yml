@@ -46,7 +46,7 @@ jobs:
           name: .net-app
   
       - name: Azure Login
-        uses: azure/login@v2
+        uses: azure/login@v1
         with:
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1E76DEAFB0674254A0F11A632E8DBD91 }}
 
