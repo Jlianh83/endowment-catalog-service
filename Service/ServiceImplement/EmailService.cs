@@ -1,6 +1,7 @@
-﻿using CatalogWebApi.DTO;
-using CatalogWebApi.Models;
+﻿using Azure;
 using Azure.Communication.Email;
+using CatalogWebApi.DTO;
+using CatalogWebApi.Models;
 
 
 
@@ -13,7 +14,7 @@ namespace CatalogWebApi.Service.ServiceImplement
 
         public EmailService(IEmailTemplateBuilder emailTemplateBuilder, IConfiguration configuration)
         {
-           _emailClient = new EmailClient(configuration["ConnectionStrings:AzureCommunication"]);
+            _emailClient = new EmailClient(configuration["ConnectionStrings:AzureCommunication"]);
             _emailTemplateBuilder = emailTemplateBuilder;
         }
 
@@ -43,11 +44,30 @@ namespace CatalogWebApi.Service.ServiceImplement
 
                 await _emailClient.SendAsync(Azure.WaitUntil.Completed, emailMessage); 
                
-            } catch (Exception ex) 
-            {
-                Console.WriteLine($"Error:{ex.Message}");
             }
-            
+            catch (RequestFailedException rex)
+            {
+                // Errores específicos de Azure Communication Services
+                Console.WriteLine("Error al enviar email (Azure Communication):");
+                Console.WriteLine($"  Status: {rex.Status}");
+                Console.WriteLine($"  ErrorCode: {rex.ErrorCode}");
+                Console.WriteLine($"  Message: {rex.Message}");
+                Console.WriteLine($"  StackTrace: {rex.StackTrace}");
+
+                // Opcional: puedes lanzar de nuevo si quieres que suba a un middleware
+                throw;
+            }
+            catch (Exception ex)
+            {
+                // Errores generales
+                Console.WriteLine("Error general al enviar email:");
+                Console.WriteLine($"  Message: {ex.Message}");
+                Console.WriteLine($"  InnerException: {ex.InnerException?.Message}");
+                Console.WriteLine($"  StackTrace: {ex.StackTrace}");
+
+                throw;
+            }
+
 
         }
     }
