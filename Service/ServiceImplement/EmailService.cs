@@ -10,17 +10,23 @@ namespace CatalogWebApi.Service.ServiceImplement
     {
         private readonly EmailClient _emailClient; 
         private readonly IEmailTemplateBuilder _emailTemplateBuilder;
+        private readonly ILogger<EmailService> _logger;
 
-        public EmailService(IEmailTemplateBuilder emailTemplateBuilder, EmailClient emailClient)
+        public EmailService(IEmailTemplateBuilder emailTemplateBuilder, EmailClient emailClient, ILogger<EmailService> logger)
         {
             _emailClient = emailClient;
             _emailTemplateBuilder = emailTemplateBuilder;
+            _logger = logger;
         }
 
         public async Task sendEmail(SendQuotationDTO sendQuotationDTO, byte[] file, string fileName, string clientName)
         {
             try
             {
+
+                _logger.LogInformation("Iniciando envío de email a {To} con asunto {Subject}",
+                    sendQuotationDTO.To,
+                    sendQuotationDTO.Subject);
 
                 var from = "DoNotReply@b0be9ab9-956a-4e92-a666-0e6c8b94232e.azurecomm.net";
                 var html = await _emailTemplateBuilder.BuildCotizationTemplateAsync(clientName);
@@ -39,16 +45,19 @@ namespace CatalogWebApi.Service.ServiceImplement
                             fileName,
                             "application/pdf",
                             new BinaryData(file)));
+                    _logger.LogInformation("Adjunto agregado: {FileName}", fileName);
                 }
 
-                await _emailClient.SendAsync(Azure.WaitUntil.Completed, emailMessage); 
-               
-            } 
-            catch (Exception ex) 
-            {
-                Console.WriteLine($"Error:{ex.Message}");
+                await _emailClient.SendAsync(Azure.WaitUntil.Completed, emailMessage);
+
+                _logger.LogInformation("Email enviado exitosamente a {To}", sendQuotationDTO.To);
             }
-            
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error enviando email a {To}", sendQuotationDTO.To);
+                throw; // ⚠ Propaga el error para que Azure Insights lo capture
+            }
+
 
         }
     }
