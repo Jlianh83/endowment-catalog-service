@@ -1,19 +1,21 @@
 ﻿using CatalogWebApi.DTO;
 using CatalogWebApi.Models;
-using Azure.Communication.Email;
-
+using MailKit.Net.Smtp;
+using MailKit.Security;
+using Microsoft.Extensions.Options;
+using MimeKit;
 
 
 namespace CatalogWebApi.Service.ServiceImplement
 {
     public class EmailService : IEmailService
     {
-        private readonly EmailClient _emailClient; 
+        private readonly SmtpSettings _smtp;
         private readonly IEmailTemplateBuilder _emailTemplateBuilder;
 
-        public EmailService(IEmailTemplateBuilder emailTemplateBuilder, EmailClient emailClient)
+        public EmailService(IOptions<SmtpSettings> smtp, IEmailTemplateBuilder emailTemplateBuilder)
         {
-            _emailClient = emailClient;
+            _smtp = smtp.Value;
             _emailTemplateBuilder = emailTemplateBuilder;
         }
 
@@ -21,34 +23,36 @@ namespace CatalogWebApi.Service.ServiceImplement
         {
             try
             {
+                using var client = new SmtpClient();
 
-                var from = "DoNotReply@b0be9ab9-956a-4e92-a666-0e6c8b94232e.azurecomm.net";
+                await client.ConnectAsync(_smtp.Host, int.Parse(_smtp.Port), SecureSocketOptions.StartTls);
+
+                client.AuthenticationMechanisms.Remove("XOAUTH2");
+
+                var message = new MimeMessage();
                 var html = await _emailTemplateBuilder.BuildCotizationTemplateAsync(clientName);
 
-                var emailContent = new EmailContent(sendQuotationDTO.Subject)
+                message.From.Add(new MailboxAddress("From: ", _smtp.User));
+                message.To.Add(new MailboxAddress("To: ", sendQuotationDTO.To));
+                message.Subject = sendQuotationDTO.Subject;
+
+                var builder = new BodyBuilder
                 {
-                    Html = html
+                    HtmlBody = html
                 };
 
-                var emailMessage = new EmailMessage(from, sendQuotationDTO.To, emailContent);
+                builder.Attachments.Add(fileName, file, new ContentType("application", "pdf"));
 
-                if (file != null)
-                {
-                    emailMessage.Attachments.Add(
-                        new EmailAttachment(
-                            fileName,
-                            "application/pdf",
-                            new BinaryData(file)));
-                }
-
-                await _emailClient.SendAsync(Azure.WaitUntil.Completed, emailMessage); 
-               
-            } 
-            catch (Exception ex) 
+                message.Body = builder.ToMessageBody();
+                await client.AuthenticateAsync(_smtp.User, _smtp.Password);
+                await client.SendAsync(message);
+                await client.DisconnectAsync(true);
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine($"Error:{ex.Message}");
             }
-            
+
 
         }
     }
