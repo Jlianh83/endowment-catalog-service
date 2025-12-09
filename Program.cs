@@ -24,9 +24,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.Configure<SmtpSettings>(
-    builder.Configuration.GetSection("EmailConfigurations")
-);
+builder.Services.AddHttpClient();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
@@ -34,11 +32,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 
 builder.Services.AddSingleton(x => new BlobServiceClient(builder.Configuration.GetConnectionString("AzureBlobStorage")));
-
-builder.Services.Configure<SmtpSettings>(
-    builder.Configuration.GetSection("EmailConfigurations")
-);
-
 
 builder.Services.AddScoped<IEndowmentRepository, EndowmentRepository>();
 builder.Services.AddScoped<IEndowmentService, EndowmentService>();
