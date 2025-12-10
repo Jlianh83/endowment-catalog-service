@@ -28,7 +28,7 @@ namespace CatalogWebApi.Service.ServiceImplement
                 var html = await _emailTemplateBuilder.BuildCotizationTemplateAsync(clientName);
 
                 // 2. Convertir PDF a Base64
-                var base64File = Convert.ToBase64String(file);
+                //var base64File = Convert.ToBase64String(file);
 
                 // 3. Construir el body que espera la Logic App
                 var payload = new
@@ -36,8 +36,6 @@ namespace CatalogWebApi.Service.ServiceImplement
                     to = sendQuotationDTO.To,
                     subject = sendQuotationDTO.Subject,
                     html = html,
-                    fileName = fileName,
-                    file = base64File
                 };
 
                 var json = JsonSerializer.Serialize(payload);
